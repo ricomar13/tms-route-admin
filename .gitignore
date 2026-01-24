@@ -1,0 +1,25 @@
+# --- SISTEMA OPERATIVO (Basura de Windows/Mac) ---
+.DS_Store
+Thumbs.db
+*.log
+
+# --- FRONTEND (Vue / Quasar / Node) ---
+route-admin/node_modules/
+route-admin/dist/
+route-admin/.quasar/
+route-admin/.env
+route-admin/.env.*
+route-admin/*.local
+route-admin/npm-debug.log*
+route-admin/yarn-error.log*
+route-admin/.vscode/
+
+# --- BACKEND (Python / FastAPI) ---
+server/__pycache__/
+server/*.pyc
+server/.venv/
+server/venv/
+server/env/
+server/.env
+server/.pytest_cache/
+server/db.sqlite3

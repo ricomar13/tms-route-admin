@@ -1,9 +1,8 @@
-// En src/router/index.js
-
 import { createRouter, createWebHistory } from 'vue-router';
 import { authState } from '../auth';
+import RoutesMaster from '../components/RoutesMaster.vue';
 
-// Importa tus componentes de "página"
+// componentes de "página"
 import Login from '../components/Login.vue';
 import Profile from '../components/Profile.vue';
 import Home from '../components/Home.vue';
@@ -18,15 +17,20 @@ const routes = [
     path: '/',
     name: 'Home',
     component: Home,
-    meta: { requiresAuth: true } // Esta ruta requiere autenticación
+    meta: { requiresAuth: true } 
   },
   {
     path: '/profile',
     name: 'Profile',
     component: Profile,
-    meta: { requiresAuth: true } // Esta ruta también
+    meta: { requiresAuth: true } 
   },
-  // Aquí añadiremos la ruta para "Rutas" más adelante
+  {
+    path: '/routes',
+    name: 'Routes',
+    component: RoutesMaster,
+    meta: { requiresAuth: true }
+  }
 ];
 
 const router = createRouter({
@@ -34,7 +38,6 @@ const router = createRouter({
   routes,
 });
 
-// "Guardia de Navegación" - Se ejecuta antes de cada cambio de ruta
 router.beforeEach((to, from, next) => {
   // Si la ruta requiere autenticación Y el usuario NO está logueado...
   if (to.meta.requiresAuth && !authState.isAuthenticated) {

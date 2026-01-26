@@ -1,25 +1,33 @@
-// En src/auth.js
-
+// src/auth.js
 import { reactive } from 'vue';
+import axios from 'axios';
 
-// Este objeto será nuestro estado global.
-// "reactive" significa que Vue observará cualquier cambio en él.
 export const authState = reactive({
-  isAuthenticated: false,
-  user: null, // Aquí podríamos guardar datos del usuario más adelante
+  isAuthenticated: !!localStorage.getItem('access_token'),
+  user: null,
 });
+
+// Función centralizada para loguearse
+export async function login(username, password) {
+  const params = new URLSearchParams();
+  params.append('username', username);
+  params.append('password', password);
+
+  try {
+    const response = await axios.post('http://127.0.0.1:8000/users/token', params);
+    const token = response.data.access_token;
+    
+    localStorage.setItem('access_token', token);
+    authState.isAuthenticated = true;
+    return true; // Éxito
+  } catch (error) {
+    console.error('Error en auth.js login:', error);
+    return false; // Fallo
+  }
+}
 
 export function logout() {
   localStorage.removeItem('access_token');
   authState.isAuthenticated = false;
   authState.user = null;
-}
-// Opcional: redirigir al login si estás usando Vue Router
-  // router.push('/login');
-
-// Al cargar la app, revisamos si ya existe un token en localStorage
-// para mantener al usuario logueado entre sesiones.
-const token = localStorage.getItem('access_token');
-if (token) {
-  authState.isAuthenticated = true;
 }

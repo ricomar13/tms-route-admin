@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from database import create_db_and_tables
 from contextlib import asynccontextmanager
-from routers import user
+from routers import user, route, truck
 from fastapi.middleware.cors import CORSMiddleware
 
 
@@ -14,7 +14,6 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-# --- 2. AÑADE EL MIDDLEWARE DE CORS ---
 #    Define los "orígenes" (clientes) que tienen permiso para hablar con tu API.
 origins = [
     "http://localhost:5173", # La URL de tu frontend de Vue
@@ -29,6 +28,8 @@ app.add_middleware(
 )
 
 app.include_router(user.router)
+app.include_router(route.router)
+app.include_router(truck.router)
 
 @app.get("/")
 async def root():

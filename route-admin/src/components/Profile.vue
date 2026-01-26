@@ -1,126 +1,152 @@
+<template>
+  <q-page class="bg-grey-1 q-pa-md flex flex-center">
+    <q-card class="profile-card no-shadow">
+      
+      <q-card-section class="bg-primary text-white q-pb-xl" style="height: 120px">
+        <div class="text-h6 text-weight-bold">
+          {{ isEditing ? 'Editando Perfil' : 'Perfil de Usuario' }}
+        </div>
+      </q-card-section>
+
+      <q-card-section class="text-center q-pa-none" style="margin-top: -50px">
+        <q-avatar size="100px" class="bg-white shadow-5">
+          <q-icon :name="isEditing ? 'edit_note' : 'person'" color="primary" size="60px" />
+        </q-avatar>
+      </q-card-section>
+
+      <q-card-section v-if="!user && !error" class="text-center">
+        <q-spinner-dots color="primary" size="40px" />
+        <p>Cargando datos de MariaDB...</p>
+      </q-card-section>
+
+      <q-card-section v-else-if="error" class="text-center">
+        <q-icon name="error" color="negative" size="lg" />
+        <div class="text-negative">{{ error }}</div>
+      </q-card-section>
+
+      <template v-else-if="user && !isEditing">
+        <q-card-section class="q-pt-md">
+          <div class="text-center q-mb-lg">
+            <div class="text-h5 text-weight-bolder text-grey-9">{{ user.full_name }}</div>
+            <q-badge color="secondary" :label="user.role || 'Usuario'" class="q-pa-xs" />
+          </div>
+
+          <q-list padding>
+            <q-item>
+              <q-item-section avatar><q-icon name="badge" color="primary" /></q-item-section>
+              <q-item-section>
+                <q-item-label caption>Código de Empleado</q-item-label>
+                <q-item-label class="text-weight-bold">{{ user.user_code }}</q-item-label>
+              </q-item-section>
+            </q-item>
+
+            <q-item>
+              <q-item-section avatar><q-icon name="alternate_email" color="primary" /></q-item-section>
+              <q-item-section>
+                <q-item-label caption>Correo Corporativo</q-item-label>
+                <q-item-label class="text-weight-bold">{{ user.email }}</q-item-label>
+              </q-item-section>
+            </q-item>
+
+            <q-item>
+              <q-item-section avatar><q-icon name="account_circle" color="primary" /></q-item-section>
+              <q-item-section>
+                <q-item-label caption>Nombre de Usuario</q-item-label>
+                <q-item-label class="text-weight-bold">@{{ user.username }}</q-item-label>
+              </q-item-section>
+            </q-item>
+          </q-list>
+        </q-card-section>
+
+        <q-separator inset />
+        <q-card-actions class="justify-center q-pb-lg">
+          <q-btn flat color="primary" icon="edit" label="Editar Datos" @click="startEditing" no-caps />
+          <q-btn flat color="grey-7" icon="lock_reset" label="Seguridad" no-caps />
+        </q-card-actions>
+      </template>
+
+      <q-form v-else-if="isEditing" @submit.prevent="handleUpdate">
+        <q-card-section class="q-gutter-sm q-px-xl">
+          <div class="row q-col-gutter-sm">
+            <div class="col-12 col-sm-6"><q-input filled dense v-model="editData.first_name" label="Nombre" /></div>
+            <div class="col-12 col-sm-6"><q-input filled dense v-model="editData.last_name" label="Apellido" /></div>
+          </div>
+          <q-input filled dense v-model="editData.email" label="Email" type="email" />
+          <q-input filled dense v-model="editData.username" label="Username" />
+          <q-input filled dense v-model="editData.password" label="Nueva Contraseña" type="password" hint="Opcional" />
+        </q-card-section>
+
+        <q-card-actions class="justify-center q-pb-lg q-px-xl">
+          <q-btn label="Guardar" type="submit" color="primary" class="full-width rounded-borders" />
+          <q-btn flat label="Cancelar" color="grey-7" @click="isEditing = false" class="full-width q-mt-sm" />
+        </q-card-actions>
+      </q-form>
+
+    </q-card>
+  </q-page>
+</template>
+
 <script setup>
-import { ref, onMounted, reactive } from 'vue';
-import api from '../api.js';
-import { useQuasar } from 'quasar'; // Importa el hook de Quasar para notificaciones
+import { ref, reactive, onMounted } from 'vue';
+import api from '../api.js'; // Usamos tu archivo api.js con el token
+import { useQuasar } from 'quasar';
 
-const $q = useQuasar(); // Obtiene el objeto de Quasar
-
+const $q = useQuasar();
 const user = ref(null);
 const error = ref(null);
-const isEditing = ref(false); // Nueva variable para controlar el modo de edición
+const isEditing = ref(false);
 
-// Objeto reactivo para guardar los datos del formulario de edición
 const editData = reactive({
-  username: '',
-  email: '',
-  first_name: '',
-  middle_name: '',
-  last_name: '',
-  second_last_name: '',
-  password: '', // Campo para la nueva contraseña
+  username: '', email: '', first_name: '', middle_name: '',
+  last_name: '', second_last_name: '', password: ''
 });
 
-// Carga los datos del usuario al montar el componente
+// Cargar datos
 onMounted(async () => {
   try {
     const response = await api.get('/users/me');
     user.value = response.data;
   } catch (err) {
-    error.value = 'No se pudieron cargar los datos del perfil.';
+    error.value = 'Error al conectar con MariaDB.';
     console.error(err);
   }
 });
 
-// Función para entrar en modo edición
 function startEditing() {
-  // Copia los datos actuales del usuario al formulario
   Object.assign(editData, user.value);
-  editData.password = ''; // Limpia el campo de la contraseña
+  editData.password = '';
   isEditing.value = true;
 }
 
-// Función para guardar los cambios
 async function handleUpdate() {
   try {
-    // Solo enviamos los campos que tienen un valor.
-    // Creamos un objeto limpio para enviar a la API.
     const updatePayload = {};
     for (const key in editData) {
-      if (editData[key]) { // Si el campo no está vacío
-        updatePayload[key] = editData[key];
-      }
+      if (editData[key]) updatePayload[key] = editData[key];
     }
 
-    // Llama al endpoint PATCH /users/me
     const response = await api.patch('/users/me', updatePayload);
-    
-    // Actualiza los datos del usuario con la respuesta de la API
     user.value = response.data;
-    isEditing.value = false; // Vuelve al modo de visualización
+    isEditing.value = false;
 
-    // Muestra una notificación de éxito
     $q.notify({
-      color: 'positive',
-      position: 'top',
-      message: 'Perfil actualizado con éxito',
-      icon: 'check_circle'
+      color: 'positive', icon: 'check_circle', message: '¡Perfil actualizado!', position: 'top'
     });
-
   } catch (err) {
-    console.error('Error al actualizar:', err);
     $q.notify({
-      color: 'negative',
-      position: 'top',
-      message: 'Error al actualizar el perfil',
-      icon: 'report_problem'
+      color: 'negative', icon: 'report_problem', message: 'Error al actualizar', position: 'top'
     });
   }
 }
 </script>
 
-<template>
-  <div class="q-pa-md" style="max-width: 500px; margin: auto;">
-    <h2 class="text-h5 q-mb-md">Mi Perfil</h2>
-
-    <q-card v-if="!isEditing && user" flat bordered>
-      <q-card-section>
-        <p><strong>Username:</strong> {{ user.username }}</p>
-        <p><strong>Email:</strong> {{ user.email }}</p>
-        <p><strong>Nombre Completo:</strong> {{ user.full_name }}</p>
-        <p><strong>User Code:</strong> {{ user.user_code }}</p>
-        <p><strong>Rol:</strong> {{ user.role }}</p>
-      </q-card-section>
-      <q-separator />
-      <q-card-actions>
-        <q-btn flat color="primary" @click="startEditing">Editar Perfil</q-btn>
-      </q-card-actions>
-    </q-card>
-    
-    <q-card v-else-if="isEditing" flat bordered>
-      <q-form @submit.prevent="handleUpdate">
-        <q-card-section class="q-gutter-md">
-          <q-input filled v-model="editData.username" label="Username" />
-          <q-input filled v-model="editData.email" label="Email" type="email" />
-          <q-input filled v-model="editData.first_name" label="Primer Nombre" />
-          <q-input filled v-model="editData.middle_name" label="Segundo Nombre" />
-          <q-input filled v-model="editData.last_name" label="Primer Apellido" />
-          <q-input filled v-model="editData.second_last_name" label="Segundo Apellido" />
-          <q-input filled v-model="editData.password" label="Nueva Contraseña (dejar en blanco para no cambiar)" type="password" />
-        </q-card-section>
-        <q-separator />
-        <q-card-actions>
-          <q-btn label="Guardar Cambios" type="submit" color="primary"/>
-          <q-btn flat label="Cancelar" @click="isEditing = false" />
-        </q-card-actions>
-      </q-form>
-    </q-card>
-
-    <div v-else-if="error" class="text-red-500">
-      {{ error }}
-    </div>
-    <div v-else>
-      <q-spinner-dots color="primary" size="40px" />
-      Cargando perfil...
-    </div>
-  </div>
-</template>
+<style scoped>
+.profile-card {
+  width: 100%;
+  max-width: 500px;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid #e0e0e0;
+  background: white;
+}
+</style>

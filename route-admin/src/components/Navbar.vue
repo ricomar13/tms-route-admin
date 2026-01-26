@@ -1,53 +1,66 @@
 <script setup>
-// Importamos la función logout en lugar de la lógica directa
 import { logout } from '../auth.js';
 import { useRouter } from 'vue-router';
 
-const router = useRouter(); // <-- 2. Obtén la instancia del router
+const router = useRouter();
 
 function handleLogout() {
-  logout(); // <-- Simplemente llamamos a la función
-  router.push('/login'); // Redirige a la página de Login
+  logout();
+  router.push('/login');
 }
 </script>
 
 <template>
-  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <div class="container-fluid">
-      <router-link class="navbar-brand" to="/">RouteAdmin</router-link>
+  <q-header elevated class="bg-white text-primary q-py-xs">
+    <q-toolbar>
+      <q-icon name="local_shipping" size="md" class="q-mr-sm" />
       
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
+      <q-toolbar-title class="text-weight-bolder">
+        Route<span class="text-grey-8">Admin</span>
+      </q-toolbar-title>
 
-      <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-          <li class="nav-item">
-            <router-link class="nav-link" to="/">Home</router-link>
-          </li>
-          <li class="nav-item">
-            <router-link class="nav-link" :to="{ name: 'Profile' }">Perfil</router-link>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link disabled" href="#">Rutas</a>
-          </li>
-        </ul>
+      <q-space />
 
-        <button 
-          @click="handleLogout" 
-          class="btn btn-outline-danger"
-        >
-          Cerrar Sesión
-        </button>
+      <div class="q-gutter-sm row items-center no-wrap gt-xs">
+        <q-btn flat no-caps label="Inicio" to="/" icon="dashboard" class="rounded-borders" />
+        
+        <q-btn flat no-caps label="Mi Perfil" to="/profile" icon="account_circle" class="rounded-borders" />
+        
+        <q-btn 
+          flat 
+          no-caps 
+          label="Rutas" 
+          to="/routes" 
+          icon="map" 
+          class="rounded-borders" 
+        />
+
+        <q-separator vertical inset class="q-mx-md" />
+
+        <q-btn 
+          unelevated 
+          no-caps 
+          color="primary" 
+          label="Cerrar Sesión" 
+          icon="logout" 
+          @click="handleLogout"
+          class="rounded-borders q-px-md"
+        />
       </div>
-    </div>
-  </nav>
+
+      <q-btn flat round dense icon="menu" class="lt-sm" />
+    </q-toolbar>
+  </q-header>
 </template>
 
 <style scoped>
-/* Estilo para que el enlace activo se vea diferente */
-.router-link-exact-active {
+.q-router-link--active {
+  background: rgba(103, 58, 183, 0.1) !important;
   font-weight: bold;
-  color: white !important;
+}
+
+.q-btn:hover {
+  transform: translateY(-1px);
+  transition: transform 0.2s;
 }
 </style>

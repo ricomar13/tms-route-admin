@@ -7,24 +7,29 @@ export const authState = reactive({
   user: null,
 });
 
-// Función centralizada para loguearse
+// Función para iniciar sesión
 export async function login(username, password) {
   const params = new URLSearchParams();
   params.append('username', username);
   params.append('password', password);
 
   try {
-    const response = await axios.post('http://127.0.0.1:8000/users/token', params);
-    const token = response.data.access_token;
+    const response = await axios.post('http://localhost:8000/users/token', params, {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      }
+    });
     
+    const token = response.data.access_token;
     localStorage.setItem('access_token', token);
     authState.isAuthenticated = true;
-    return true; // Éxito
+    return true; 
   } catch (error) {
-    console.error('Error en auth.js login:', error);
-    return false; // Fallo
+    console.error('Error en login:', error.response?.status || error.message);
+    return false;
   }
 }
+
 
 export function logout() {
   localStorage.removeItem('access_token');

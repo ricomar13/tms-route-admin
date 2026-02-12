@@ -24,8 +24,6 @@ function handleLogout() {
       <div class="q-gutter-sm row items-center no-wrap gt-xs">
         <q-btn flat no-caps label="Inicio" to="/" icon="dashboard" class="rounded-borders" />
         
-        <q-btn flat no-caps label="Mi Perfil" to="/profile" icon="account_circle" class="rounded-borders" />
-        
         <q-btn 
           flat 
           no-caps 
@@ -34,6 +32,17 @@ function handleLogout() {
           icon="map" 
           class="rounded-borders" 
         />
+
+        <q-btn 
+          flat 
+          no-caps 
+          label="Flota" 
+          to="/trucks" 
+          icon="local_shipping" 
+          class="rounded-borders" 
+        />
+        
+        <q-btn flat no-caps label="Mi Perfil" to="/profile" icon="account_circle" class="rounded-borders" />
 
         <q-separator vertical inset class="q-mx-md" />
 
@@ -49,16 +58,19 @@ function handleLogout() {
       </div>
 
       <q-btn flat round dense icon="menu" class="lt-sm" />
+      
     </q-toolbar>
   </q-header>
 </template>
 
 <style scoped>
+/* Resaltar el botón de la página donde estamos parado */
 .q-router-link--active {
   background: rgba(103, 58, 183, 0.1) !important;
   font-weight: bold;
 }
 
+/* Efecto hover elegante */
 .q-btn:hover {
   transform: translateY(-1px);
   transition: transform 0.2s;

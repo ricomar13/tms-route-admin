@@ -30,6 +30,11 @@ const routes = [
     name: 'Routes',
     component: RoutesMaster,
     meta: { requiresAuth: true }
+  },
+  {
+    path: '/trucks',
+    name: 'Trucks',
+    component: () => import('../components/TrucksMaster.vue'),
   }
 ];
 

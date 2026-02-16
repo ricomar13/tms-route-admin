@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session, select
-from database import get_session
-from models import Truck, Route
 from typing import List
+from config.database import get_session
+from app.models.models import Truck, Route
 
 router = APIRouter(prefix="/trucks", tags=["trucks"])
 
@@ -23,17 +23,14 @@ def update_truck(truck_id: int, update_data: dict, session: Session = Depends(ge
     if not db_truck:
         raise HTTPException(status_code=404, detail="No existe la unidad")
     
-    # VALIDACIÓN: No permitir 'disponible' si tiene ruta activa
+    # Validación para no poner disponible si tiene ruta activa
     if update_data.get("status") == "disponible":
         active_route = session.exec(
             select(Route).where(Route.truck_id == truck_id, Route.status == "en_transito")
         ).first()
         if active_route:
-            raise HTTPException(
-                status_code=400, 
-                detail=f"No se puede poner disponible. Tiene una ruta activa: {active_route.name}"
-            )
-    
+            raise HTTPException(status_code=400, detail="Tiene una ruta activa")
+
     for key, value in update_data.items():
         if hasattr(db_truck, key):
             setattr(db_truck, key, value)
@@ -48,14 +45,6 @@ def delete_truck(truck_id: int, session: Session = Depends(get_session)):
     truck = session.get(Truck, truck_id)
     if not truck:
         raise HTTPException(status_code=404, detail="No existe")
-    
-    # VALIDACIÓN: No permitir borrar si tiene ruta activa
-    active_route = session.exec(
-        select(Route).where(Route.truck_id == truck_id, Route.status == "en_transito")
-    ).first()
-    if active_route:
-        raise HTTPException(status_code=400, detail="No se puede eliminar un camión con ruta activa")
-
     session.delete(truck)
     session.commit()
     return {"ok": True}

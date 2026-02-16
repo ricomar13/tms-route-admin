@@ -14,18 +14,18 @@ export async function login(username, password) {
   params.append('password', password);
 
   try {
+    // CAMBIO: Localhost para consistencia total
     const response = await axios.post('http://localhost:8000/users/token', params, {
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
-      }
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
     });
+
     
     const token = response.data.access_token;
     localStorage.setItem('access_token', token);
     authState.isAuthenticated = true;
     return true; 
   } catch (error) {
-    console.error('Error en login:', error.response?.status || error.message);
+    console.error('Error en login:', error);
     return false;
   }
 }

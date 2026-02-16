@@ -1,14 +1,13 @@
-import crud
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from schemas import CreateUser, ReadUser, UpdateUser
 from sqlmodel import Session
-from database import get_session
 from typing import Annotated, List
 from fastapi.security import OAuth2PasswordRequestForm
-import security
-from models import User 
+from app.services import crud
+from app.serializers.schemas import CreateUser, ReadUser, UpdateUser
+from app.models.models import User 
+from config.database import get_session
+from config import security
 
-# El prefijo /users hará que el login sea: /users/token
 router = APIRouter(prefix="/users", tags=["users"])
 
 SessionDep = Annotated[Session, Depends(get_session)]

@@ -1,8 +1,8 @@
 from sqlmodel import Session, select
-from schemas import CreateUser, UpdateUser
-from models import User
-from security import get_password_hash
 from typing import Optional
+from app.serializers.schemas import CreateUser, UpdateUser
+from app.models.models import User
+from config.security import get_password_hash
 
 def create_user(session: Session, create_user: CreateUser):
     # Hash de la contraseña antes de guardar

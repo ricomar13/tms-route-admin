@@ -1,7 +1,11 @@
 # server/seed.py
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from sqlmodel import Session
-from database import engine, create_db_and_tables # <-- IMPORTANTE: Importa la función de creación
-from models import Truck, Route
+from config.database import engine, create_db_and_tables
+from app.models.models import Truck, Route
 
 def seed_data():
     # 0. Primero creamos las tablas nuevas en MariaDB

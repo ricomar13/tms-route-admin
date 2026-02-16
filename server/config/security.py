@@ -2,11 +2,11 @@ from datetime import datetime, timedelta, timezone
 from typing import Optional, Annotated
 from jose import JWTError, jwt
 from passlib.context import CryptContext
-from config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlmodel import Session
-from database import get_session
+from config.config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
+from config.database import get_session
 
 
 # Logica seguridad.
@@ -35,7 +35,7 @@ def get_current_user(
 ):
     # --- IMPORTACIÓN LOCAL ---
     # Importamos 'crud' aquí DENTRO para romper el ciclo
-    import crud
+    from app.services import crud
     
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
